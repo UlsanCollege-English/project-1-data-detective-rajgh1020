@@ -63,12 +63,15 @@ def top_n_words(counts: dict[str, int], n: int) -> list[tuple[str, int]]:
 
 
 def extra_insight(words: list[str], counts: dict[str, int]) -> object:
-    """Return a sorted list of words that appear exactly once (hapax legomena).
+    """Return a sorted list of unique palindrome words found in the text.
 
-    Time: O(u) | Space: O(u).
-    """
-    hapax = sorted(word for word, count in counts.items() if count == 1)
-    return hapax
+    Time: O(u * k) where k = average word length | Space: O(u)."""
+ 
+    palindromes = sorted(
+        word for word in counts
+        if len(word) > 1 and word == word[::-1]
+    )
+    return palindromes
 
 
 def run_demo(path: str, n: int = 10) -> dict[str, object]:
@@ -86,11 +89,10 @@ def run_demo(path: str, n: int = 10) -> dict[str, object]:
 
 
 if __name__ == "__main__":
-    demo_path = Path("data/sample.txt")
+    demo_path = Path("data/data.txt")
     if demo_path.exists():
         results = run_demo(str(demo_path), n=10)
         for key, value in results.items():
             print(f"{key}: {value}")
     else:
         print("No demo file found at data/sample.txt")
-        
