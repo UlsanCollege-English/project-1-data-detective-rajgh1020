@@ -1,61 +1,74 @@
 """Project 1 starter: Data Detective.
-
 Implement the required functions below.
 Use standard library only.
 """
-
 from __future__ import annotations
-
+import string
 from pathlib import Path
 
 
 def load_text(path: str) -> str:
     """Load and return the full text from a UTF-8 file."""
-    raise NotImplementedError
+    with open(path, encoding="utf-8") as f:
+        return f.read()
 
 
 def normalize_text(text: str) -> str:
-    """Return a normalized version of the text.
+    """Lowercase, remove punctuation, and collapse whitespace."""
+    text = text.lower()
 
-    Suggested starter behavior:
-    - lowercase the text
-    - remove or replace punctuation
-    - collapse extra whitespace if helpful
-    """
-    raise NotImplementedError
+    # Split hyphens into spaces so "well-known" -> "well known"
+    text = text.replace("-", " ").replace("—", " ").replace("–", " ")
+
+    # Remove all punctuation
+    remove_punct = str.maketrans("", "", string.punctuation)
+    text = text.translate(remove_punct)
+
+    # Collapse tabs, newlines, and extra spaces into one space
+    text = " ".join(text.split())
+
+    return text
 
 
 def tokenize(text: str) -> list[str]:
     """Split normalized text into a list of words."""
-    raise NotImplementedError
+    if not text:
+        return []
+    return text.split()
 
 
 def count_words(words: list[str]) -> dict[str, int]:
-    """Count how many times each word appears."""
-    raise NotImplementedError
+    """Count how many times each word appears.
+
+    Time: O(n) | Space: O(u) where u = unique words.
+    """
+    counts: dict[str, int] = {}
+    for word in words:
+        counts[word] = counts.get(word, 0) + 1
+    return counts
 
 
 def top_n_words(counts: dict[str, int], n: int) -> list[tuple[str, int]]:
-    """Return the top N words as (word, count) tuples.
+    """Return the top N (word, count) tuples, sorted by count desc then alphabetically.
 
-    Suggested behavior:
-    - if n <= 0, return []
-    - sort by count descending
-    - for ties, sort alphabetically
+    Time: O(u log u) | Space: O(u).
     """
-    raise NotImplementedError
+    if n <= 0:
+        return []
+
+    # (-count, word) sorts highest count first; ties go alphabetically
+    sorted_words = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+
+    return sorted_words[:n]
 
 
 def extra_insight(words: list[str], counts: dict[str, int]) -> object:
-    """Return one extra insight of your choice.
+    """Return a sorted list of words that appear exactly once (hapax legomena).
 
-    Keep it small and well-defined.
-    Examples:
-    - list of words that appear once
-    - average word length
-    - longest unique word
+    Time: O(u) | Space: O(u).
     """
-    raise NotImplementedError
+    hapax = sorted(word for word, count in counts.items() if count == 1)
+    return hapax
 
 
 def run_demo(path: str, n: int = 10) -> dict[str, object]:
@@ -64,7 +77,6 @@ def run_demo(path: str, n: int = 10) -> dict[str, object]:
     normalized = normalize_text(text)
     words = tokenize(normalized)
     counts = count_words(words)
-
     return {
         "total_words": len(words),
         "unique_words": len(counts),
@@ -81,3 +93,4 @@ if __name__ == "__main__":
             print(f"{key}: {value}")
     else:
         print("No demo file found at data/sample.txt")
+        
